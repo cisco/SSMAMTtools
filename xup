@@ -1,0 +1,2 @@
+xemacs build/linux/makefile include/*.h src/*.[ch] ex_sock/*.[hc] test/*.[hc] test/linux/makefile & 
+

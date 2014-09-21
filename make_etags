@@ -1,0 +1,10 @@
+#!/bin/tcsh -f
+
+set this_path=`pwd`
+pushd /
+find $this_path -name "*.[ch]" -print > $this_path/tmp.files ; find $this_path  -name "*.cc" -print >> $this_path/tmp.files ;
+popd
+
+cat $this_path/tmp.files | etags - -f ETAG
+
+
