@@ -115,9 +115,10 @@ static int readPacket_auxmsg(struct pollfd *ufds, u8 *buf, int maxSize, u32 *gro
 {
     char cmbuf[0x100];	// the control data is dumped here
     struct iovec  iobuf={buf,maxSize};
-    struct msghdr auxMsg={NULL, 0, &iobuf, 1, cmbuf,sizeof(cmbuf), 0};
+    struct sockaddr_in peeraddr;
+    struct msghdr auxMsg={&peeraddr, sizeof(peeraddr), &iobuf, 1, cmbuf,sizeof(cmbuf), 0};
     int size=0, res=0;
- 
+  
     *group= 0;
     *srcIP = 0;
     
@@ -131,9 +132,11 @@ static int readPacket_auxmsg(struct pollfd *ufds, u8 *buf, int maxSize, u32 *gro
 	AMT_ERR_CHECK(res>=0, AMT_ERR, "failed to read packet with "
 		      "errno=%u errmsg=%s \n", errno, strerror(errno));
 	size = res;	
+	
 	for (cmsg = CMSG_FIRSTHDR(&auxMsg); cmsg != NULL; cmsg = CMSG_NXTHDR(&auxMsg, cmsg)) {
 	    if (cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO) {
-		*srcIP = ntohl(((struct in_pktinfo*)CMSG_DATA(cmsg))->ipi_spec_dst.s_addr);
+		*srcIP = ntohl(peeraddr.sin_addr.s_addr);
+		//*srcIP = ntohl(((struct in_pktinfo*)CMSG_DATA(cmsg))->ipi_spec_dst.s_addr);
 		*group = ntohl(((struct in_pktinfo*)CMSG_DATA(cmsg))->ipi_addr.s_addr);
 		// pi->ipi_spec_dst is the destination in_addr
 		// pi->ipi_addr is the receiving interface in_addr
@@ -143,7 +146,7 @@ static int readPacket_auxmsg(struct pollfd *ufds, u8 *buf, int maxSize, u32 *gro
     }
     return size;
 }
-
+ 
 static int readPacket(struct pollfd *ufds, u8 *buf, int maxSize)
 {
     struct sockaddr tmp;
@@ -1405,7 +1408,10 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 	}
 	break;
     }
-  
+
+    // update individual ssm
+    AMT_TRACE(AMT_LEVEL_8, "fired for n=%u\n", n);
+ 
     // handle the relay socket
     if (rc) {
 	c--;
@@ -1427,7 +1433,6 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 	return  n+relayData;
     }
   
-    // update individual ssm
     for (i=0;i<c && n>0;i++) {
 	int k;
 	amt_ssm_t *p = ssmPointer[i].pSSM; // root of sisters
@@ -1451,8 +1456,11 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 	    }
 	    
 	    // find the handle
+
 	    len = res;
 	    if (res>0) {
+		AMT_TRACE(AMT_LEVEL_9, "get ssm data len=%u pSSM=%p src=0x%08x group=0x%08x\n", 
+			  res, p, srcIP,group );
 		for (k=0; k<p->mark; k++) {
 		    amt_ssm_t *pSSM = (amt_ssm_t *) ((amt_read_event_t *)ssmPointer[i].bPointer[k])->handle;
 		    if (pSSM->srcIP == srcIP && pSSM->groupIP == group) {
@@ -1460,6 +1468,7 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 			pSSM->ssmState = AMT_SSM_STATE_SSM_JOINED;
 			p->bufSize = len;
 			p->pSSM = pSSM;
+			AMT_TRACE(AMT_LEVEL_9, "get ssm data len=%u pSSM=%p\n", len, pSSM);
 
 			// disconnnected from relay
 			pthread_mutex_lock(&amt_mutex);	
@@ -1468,6 +1477,7 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 				relay_prepareForLeave(pSSM);
 			    } else {
 				pSSM->relay = NULL;
+				AMT_TRACE(AMT_LEVEL_9, "disable AMT connection for pSSM=%p\n", pSSM);
 			    }
 			}
 			pthread_mutex_unlock(&amt_mutex);					
