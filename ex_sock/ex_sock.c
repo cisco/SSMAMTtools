@@ -113,7 +113,7 @@ u32  getLocalIPDev(char *pIf)
 // make a UDP server/client socket
 // When *sServerPort = 0, it is to create an even port.
 // When *sServerPort = 1, it is to create an odd port.
-ex_sock_t * ex_makeUDPSock(u32 localIP, u16 *sServerPort, u32 remoteIP, u16 remotePort)
+ex_sock_t * ex_makeUDPSock(u32 localIP, u16 *sServerPort, u32 remoteIP, u16 remotePort, int reuse)
 {
   char ipStringL[80],ipStringR[80];
   int res=0;
@@ -135,14 +135,20 @@ ex_sock_t * ex_makeUDPSock(u32 localIP, u16 *sServerPort, u32 remoteIP, u16 remo
   // include struct in_pktinfo in the message "ancilliary" control data
   res = setsockopt(pSock->sockClient, IPPROTO_IP, IP_PKTINFO, &enable, sizeof(enable));
   if (res < 0 ) {
+      close(pSock->sockClient);
+      free(pSock);
       EX_ERR_CHECK(0, "ex_makeUDPSock:failed to set IPPROTO_IP\n", NULL);
   }
 
   // make it reusable
-  //res = setsockopt( pSock->sockClient, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
-  //if (res < 0 ) {
-  //    EX_ERR_CHECK(0, "ex_makeUDPSock:failed to set SO_REUSEADDR\n", NULL);
-  //}
+  if (reuse) {
+      res = setsockopt( pSock->sockClient, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
+      if (res < 0 ) {
+	  close(pSock->sockClient);
+          free(pSock);
+	  EX_ERR_CHECK(0, "ex_makeUDPSock:failed to set SO_REUSEADDR\n", NULL);
+      }
+  }
 
   pSock->sockServ =  pSock->sockClient;
   if (localIP==0) {

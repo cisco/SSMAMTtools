@@ -68,12 +68,12 @@ official policies, either expressed or implied, of Cisco.
 // make a UDP server/client socket
 // When *sServerPort = 0, it is to create an even port.
 // When *sServerPort = 1, it is to create an odd port.
-amt_sock_t * amt_makeUDPSock(u32 localIP, u16 *sServerPort, u32 remoteIP, u16 remotePort)
+amt_sock_t * amt_makeUDPSock(u32 localIP, u16 *sServerPort, u32 remoteIP, u16 remotePort, int reuse)
 {
     ex_sock_t *pExSock;
     amt_sock_t *pSock =  (amt_sock_t *) malloc(sizeof(amt_sock_t));
     AMT_ERR_CHECK(pSock!=NULL, NULL, "No Memory");
-    pExSock = ex_makeUDPSock(localIP, sServerPort, remoteIP, remotePort);
+    pExSock = ex_makeUDPSock(localIP, sServerPort, remoteIP, remotePort, reuse);
     AMT_ERR_CHECK(pExSock!=NULL, NULL, "Failed to make a UDP socket");
     *pSock = *((amt_sock_t *)pExSock);
     ex_free(pExSock);

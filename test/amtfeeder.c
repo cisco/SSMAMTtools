@@ -302,7 +302,7 @@ int sendout(comLine_param_t *pEnv)
     for (k=0;k<pEnv->ssmSize;k++) {
 	remoteIP = ntohl(inet_addr(pEnv->ssmIP[k]));
 	sport=0;
-	pSock[k] = ex_makeUDPSock(pEnv->localIP, &sport, remoteIP ,  pEnv->dport  );
+	pSock[k] = ex_makeUDPSock(pEnv->localIP, &sport, remoteIP ,  pEnv->dport ,1 );
 	EX_ERR_CHECK(pSock[k] != NULL, " ", 1);
 	
 	// set ttl to 255. Multcast requires > 1

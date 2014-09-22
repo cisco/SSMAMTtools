@@ -58,7 +58,7 @@ void ex_free(void *p);
 void *ex_malloc(int size);
 
 ex_sock_t * ex_makeUDPSock(unsigned int localIP, unsigned short *sServerPort,
-			   unsigned int remoteIP, unsigned short remotePort);
+			   unsigned int remoteIP, unsigned short remotePort, int reuse);
 void ex_setUDPClient(ex_sock_t *pSock, unsigned int remoteIP, 
 		     unsigned short remotePort);
 int ex_setSSMTTL(int s, unsigned int  ttl);

@@ -14,7 +14,7 @@ static void packetRecv(amt_handle_t handle,  void *_buf,  int size,  void *param
     
     if (pSock == NULL) { // to the render
 	sport=0;
-	pSock = ex_makeUDPSock(0, &sport, *renderIP, 9010);
+	pSock = ex_makeUDPSock(0, &sport, *renderIP, 9010,1);
 	EX_ERR_CHECK(pSock != NULL, " ", _EMPTY);
     }
     ex_sendPacket(pSock,  buf, size);

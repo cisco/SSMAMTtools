@@ -846,22 +846,14 @@ amt_ssm_t *getSSM(u32 source, u32 group, u16 port,  amt_ssm_t **_pSister)
 
 static int setupSSM(amt_ssm_t *pSSM) 
 {
-    int res, enable=1;
- 
+    int res;
+    
     AMT_TRACE(AMT_LEVEL_9,"setting up ssm ...\n");
 
     // make a UDP socket
-    // pHdl->ssmSock = amt_makeUDPSock(getLocalIP(), &pHdl->ssmUdpPort, 0 ,  0);
-    pSSM->sock = amt_makeUDPSock(0, &pSSM->udpPort, 0 ,  0);
+    // pHdl->ssmSock = amt_makeUDPSock(getLocalIP(), &pHdl->ssmUdpPort, 0 ,  0, 1);
+    pSSM->sock = amt_makeUDPSock(0, &pSSM->udpPort, 0 ,  0, 1);
     if (pSSM->sock==NULL) { return AMT_ERR; }
-
-    // make it reusable to receive all the ssm data
-    res = setsockopt( pSSM->sock->sockClient, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
-    if (res < 0 ) {
-	amt_close(&pSSM->sock);
-	AMT_ERR_CHECK(0, AMT_ERR, "failed to set SO_REUSEADDR\n");
-    }
-
 
     
     res = amt_joinSSMGroup(pSSM->sock->sockServ,  pSSM->groupIP, pSSM->srcIP,INADDR_ANY);
@@ -928,7 +920,7 @@ static void *amt_connectRelay(void *timerID)
 	      pRelay->anycastIP, AMT_ANYCAST_PORT);
 
     // make a socket to connect to relay
-    pRelay->sock = amt_makeUDPSock(0, &lRelayPort, pRelay->anycastIP, AMT_ANYCAST_PORT);
+    pRelay->sock = amt_makeUDPSock(0, &lRelayPort, pRelay->anycastIP, AMT_ANYCAST_PORT, 0);
     if (pRelay->sock==NULL) { 
 	amt_deleteTimer((amt_timer_handle)timerID);
 	relayConnThreadRunning = 0;
@@ -1373,6 +1365,7 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
     int count = MAX_RETRY_SOCK;
     int readyCheckCount  = (timeout<=0)?0:(timeout+AMT_TIME_RESOLUTION-1)/AMT_TIME_RESOLUTION; // 10 ms
     int timeleft;
+    int use=0;
 
     memset(ufds, 0, sizeof(ufds));
     memset(ssmPointer, 0, sizeof(ssmPointer));
@@ -1432,7 +1425,8 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 	}
 	return  n+relayData;
     }
-  
+
+    use=0; // actually used
     for (i=0;i<c && n>0;i++) {
 	int k;
 	amt_ssm_t *p = ssmPointer[i].pSSM; // root of sisters
@@ -1456,9 +1450,9 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 	    }
 	    
 	    // find the handle
-
 	    len = res;
 	    if (res>0) {
+		n--;
 		AMT_TRACE(AMT_LEVEL_9, "get ssm data len=%u pSSM=%p src=0x%08x group=0x%08x\n", 
 			  res, p, srcIP,group );
 		for (k=0; k<p->mark; k++) {
@@ -1468,6 +1462,7 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 			pSSM->ssmState = AMT_SSM_STATE_SSM_JOINED;
 			p->bufSize = len;
 			p->pSSM = pSSM;
+			use++;
 			AMT_TRACE(AMT_LEVEL_9, "get ssm data len=%u pSSM=%p\n", len, pSSM);
 
 			// disconnnected from relay
@@ -1494,7 +1489,7 @@ int poll_impl(amt_read_event_t *rs, int size, int timeout)
 	}
 	p->mark = 0;
     }
-    return n+relayData;
+    return use+relayData;
 }
 
 int recvfrom_impl(amt_ssm_t *pSSM, u8 *buf, int maxSize) 

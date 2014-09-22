@@ -58,7 +58,7 @@ typedef struct {
     u16 dump;
 } amt_sock_t;
 
-amt_sock_t * amt_makeUDPSock(u32 localIP, u16 *sServerPort, u32 remoteIP, u16 remotePort);
+amt_sock_t * amt_makeUDPSock(u32 localIP, u16 *sServerPort, u32 remoteIP, u16 remotePort, int reuse);
 void amt_setUDPClient(amt_sock_t *pSock, u32 remoteIP, u16 remotePort);
 int amt_setSSMTTL(s32 s, u32 ttl);
 int amt_joinSSMGroup(s32 s, u32 groupIP, u32 sourceIP, u32 interfaceIP);

@@ -275,7 +275,7 @@ static void packetRecv(amt_handle_t handle, void *_buf, int size, void *param)
 	remoteIP = ntohl(pEnv->renderIP);
 	sport=0;
 	pSock = ex_makeUDPSock(pEnv->localIP, &sport, 
-			       pEnv->renderIP,pEnv->renderPort);
+			       pEnv->renderIP,pEnv->renderPort,1);
 	EX_ERR_CHECK(pSock != NULL, " ", _EMPTY);
     }
     
@@ -296,7 +296,7 @@ static void trace(int level, char *msg, int size)
     if (pTraceSock==NULL) {
 	u16 sServerPort=0;
 	u16 dstPort = 20000;
-	pTraceSock = ex_makeUDPSock(0, &sServerPort,debugHost,dstPort);
+	pTraceSock = ex_makeUDPSock(0, &sServerPort,debugHost,dstPort,1);
     }
     if (msg && pTraceSock) { // send the trace msg out
 	ex_sendPacket(pTraceSock, (u8 *)msg, size);

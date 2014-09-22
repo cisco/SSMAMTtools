@@ -319,7 +319,7 @@ static void trace(int level, char *msg, int size)
     if (pTraceSock==NULL) {
 	u16 sServerPort=0;
 	u16 dstPort = 20000;
-	pTraceSock = ex_makeUDPSock(0, &sServerPort,debugHost,dstPort);
+	pTraceSock = ex_makeUDPSock(0, &sServerPort,debugHost,dstPort, 1);
     }
     if (msg && pTraceSock) { // send the trace msg out
 	ex_sendPacket(pTraceSock, (u8 *)msg, size);
