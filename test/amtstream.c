@@ -268,11 +268,9 @@ static void packetRecv(amt_handle_t handle, void *_buf, int size, void *param)
     comLine_param_t *pEnv = (comLine_param_t *)param;
     static ex_sock_t *pSock=NULL;
     u16 sport=0;
-    u32 remoteIP;
       
  
     if (pSock == NULL) {
-	remoteIP = ntohl(pEnv->renderIP);
 	sport=0;
 	pSock = ex_makeUDPSock(pEnv->localIP, &sport, 
 			       pEnv->renderIP,pEnv->renderPort,1);
