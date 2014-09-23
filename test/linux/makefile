@@ -27,11 +27,13 @@ CC=gcc
 WFLAGS=-Wall -Wstrict-prototypes -Wpointer-arith -Werror
 
 ifdef PLATFORM32
+AMTLIB=amt
 CFLAGS=-m32 -march=i686 -DP32BITS -g -c  $(ADD_INCLUDE_DIR)
-LIBS=-m32 -march=i686 -L$(TARGET_LIB) -static-libgcc -lamt -lpthread 
+LIBS=-m32 -march=i686 -L$(TARGET_LIB) -static-libgcc -l$(AMTLIB) -lpthread 
 else
+AMTLIB=amt64
 CFLAGS=-g -c  $(ADD_INCLUDE_DIR)
-LIBS=-L$(TARGET_LIB) -static-libgcc -lamt -lpthread 
+LIBS=-L$(TARGET_LIB) -static-libgcc -l$(AMTLIB) -lpthread 
 endif
 
 #CFLAGS=-g -c -O3 $(ADD_INCLUDE_DIR)
@@ -58,7 +60,7 @@ show:
 	@echo $(EX_OBJECTS)
 
 # make the lib
-$(TARGET): $(OBJECTS) $(TARGET_LIB)/libamt.a
+$(TARGET): $(OBJECTS) $(TARGET_LIB)/lib$(AMTLIB).a
 	$(CC) -o $@ $@.o $(EX_OBJECTS) $(LIBS)
 
 clean:

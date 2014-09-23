@@ -1,6 +1,5 @@
 #
 PLATFORM32=1
-TARGET=libamt.a
 
 TARGET_DIR=obj
 SOURCE_DIR=../../src
@@ -28,8 +27,10 @@ WFLAGS=-Wpadded -Wall -Wstrict-prototypes -Wpointer-arith -Werror
 
 ifdef PLATFORM32
 CFLAGS=-m32 -march=i686 -DP32BITS -g -c  $(ADD_INCLUDE_DIR)
+TARGET=libamt.a
 else
 CFLAGS=-g -c  $(ADD_INCLUDE_DIR)
+TARGET=libamt64.a
 endif
 
 #CFLAGS=-g -c -O3 $(ADD_INCLUDE_DIR)

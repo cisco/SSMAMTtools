@@ -645,7 +645,7 @@ static int checkMQ(u8 *buf, int size)
 	int alertSize =  ((pMQ->ip.ver_ihl&0x0f)-5)*4;
 	cSize +=alertSize;
 	alertOffset = (alertSize)?0:-4;
-	mq =  (amt_igmpv3_membership_query_t *)(((u32)&pMQ->mq) + alertOffset);
+	mq =  (amt_igmpv3_membership_query_t *)(((char *)&pMQ->mq) + alertOffset);
 	cSize += ntohs(mq->nSrc)*4;
 	if (size < cSize) { 
 	    return AMT_ERR;
@@ -686,7 +686,7 @@ static void printMQ(u8 *buf, int size)
 	      ntohl(pMQ->ip.saddr), ntohl(pMQ->ip.daddr));
     }
     
-    mq = (amt_igmpv3_membership_query_t *)(((u32)&pMQ->mq) + alertOffset);
+    mq = (amt_igmpv3_membership_query_t *)(((char *)&pMQ->mq) + alertOffset);
     nSrc = ntohs(mq->nSrc);
     AMT_TRACE(AMT_LEVEL_7,"Tunneled Membership Query -- \n");
     AMT_TRACE(AMT_LEVEL_7,"type=0x%x max_resp_code=0x%02x checksum=%u ssmIP=0x%08x s_qrv=%u qqic=%u\n", 
@@ -777,7 +777,7 @@ static int  handleRequestResp(amt_relay_t *pRelay, u8 *buf, int size)
 
     // check if alert is included
     alertOffset = ((pMQ->ip.ver_ihl&0x0f) > 5)?0:-4;
-    mq = (amt_igmpv3_membership_query_t *)(((u32)&pMQ->mq) + alertOffset);
+    mq = (amt_igmpv3_membership_query_t *)(((char *)&pMQ->mq) + alertOffset);
 
     // retrieve qrv and qqic
     pRelay -> minretry = mq->s_qrv&0x7;

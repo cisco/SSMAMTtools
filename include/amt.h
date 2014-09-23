@@ -39,6 +39,7 @@ official policies, either expressed or implied, of Cisco.
  **********************************************************************/ 
 #ifndef __AMT_H__
 #define __AMT_H__
+#pragma pack(push, 1) 
 
 #define AMT_MAX_CHANNEL (32)
 

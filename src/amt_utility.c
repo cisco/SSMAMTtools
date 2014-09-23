@@ -165,9 +165,14 @@ void *amt_timer(void *_p)
     return NULL;
 }
  
-int amt_createTimer(u32 period)
+int amt_createTimer(u32 _period)
 {
     int res;
+#ifdef P32BITS
+    u32 period = _period;
+#else
+    unsigned long long period = _period;
+#endif
     pthread_t t;
     pthread_attr_t	thread_attr;
     pthread_attr_init(&thread_attr);
