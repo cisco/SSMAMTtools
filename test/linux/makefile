@@ -1,7 +1,7 @@
 #
 # make test code
 #
-PLATFORM32=1
+#PLATFORM32=1
 TARGET=amtchk amtpoll amtsink amtstream amtfeeder
 CSOURCE_DIR=..
 

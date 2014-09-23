@@ -1,5 +1,5 @@
 #
-PLATFORM32=1
+#PLATFORM32=1
 
 TARGET_DIR=obj
 SOURCE_DIR=../../src
