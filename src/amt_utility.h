@@ -58,7 +58,7 @@ typedef unsigned char	bool;
 
 
 // sleep milisecond
-static inline void inline msleep(u32 sec, u32 time)
+inline static  void  msleep(u32 sec, u32 time)
 {
   struct timespec req;
   req.tv_nsec = time*1000000;

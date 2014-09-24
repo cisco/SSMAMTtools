@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
     unsigned char   buf[1500];
     unsigned int group = ntohl(inet_addr("232.10.10.10"));
-    unsigned int srcIP =  ntohl(inet_addr("209.197.204.73"));
+    unsigned int srcIP =  ntohl(inet_addr("192.168.0.100"));
     amt_handle_t channelID;
     unsigned int anycast;
     if (argc < 2) {

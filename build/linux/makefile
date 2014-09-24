@@ -23,7 +23,7 @@ ADD_INCLUDE_DIR=-I$(LIBAPI_DIR) -I$(SOURCE_DIR) -I$(EX_CODE)
 # standard options
 CC=gcc
 LIBS=-static-libgcc -lpthread
-WFLAGS=-Wpadded -Wall -Wstrict-prototypes -Wpointer-arith -Werror
+WFLAGS=-Wpadded -Wall -Wstrict-prototypes -Wpointer-arith  
 
 ifdef PLATFORM32
 CFLAGS=-m32 -march=i686 -DP32BITS -g -c  $(ADD_INCLUDE_DIR)

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     {
 	unsigned char   buf[1500];
 	unsigned int group = ntohl(inet_addr("232.10.10.10"));
-	unsigned int srcIP =  ntohl(inet_addr("209.197.204.73"));
+	unsigned int srcIP =  ntohl(inet_addr("192.168.0.100"));
 	amt_handle_t channelID = amt_openChannel(anycast, group, srcIP, 
 						 9010, AMT_CONNECT_REQ_RELAY);
 	amt_read_event_t rs={channelID,0};

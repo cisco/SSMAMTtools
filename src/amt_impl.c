@@ -207,7 +207,7 @@ amt_ssm_t *findSister(u16 port,  amt_ssm_t *pRoot)
     return p;
 }
 
-static void inline amt_remove(amt_ssm_t *pSSM, amt_ssm_t **pRoot)
+inline static void amt_remove(amt_ssm_t *pSSM, amt_ssm_t **pRoot)
 {	    
     amt_ssm_t *p=findSister(pSSM->udpPort, *pRoot);
     if (pSSM == p) { // the sister root
@@ -246,7 +246,7 @@ static void inline amt_remove(amt_ssm_t *pSSM, amt_ssm_t **pRoot)
 
 }
 
-static void inline amt_leave_remove(amt_leave_ssm_t *pSSM, amt_leave_ssm_t **pRoot)
+inline static void amt_leave_remove(amt_leave_ssm_t *pSSM, amt_leave_ssm_t **pRoot)
 {	    
     if (pSSM->prev) {
 	pSSM->prev->next = pSSM->next;
@@ -261,7 +261,7 @@ static void inline amt_leave_remove(amt_leave_ssm_t *pSSM, amt_leave_ssm_t **pRo
     pSSM->refCount--;
 }
 
-static void inline amt_insert_leave(amt_leave_ssm_t *pSSM, amt_leave_ssm_t **pRoot)
+inline static void amt_insert_leave(amt_leave_ssm_t *pSSM, amt_leave_ssm_t **pRoot)
 {	    
     pSSM->next = *pRoot;
     pSSM->prev = NULL;
@@ -272,7 +272,7 @@ static void inline amt_insert_leave(amt_leave_ssm_t *pSSM, amt_leave_ssm_t **pRo
     pSSM->refCount++;
 }
 
-static void inline amt_insert(amt_ssm_t *pSSM, amt_ssm_t **pRoot)
+inline static void amt_insert(amt_ssm_t *pSSM, amt_ssm_t **pRoot)
 {	    
     amt_ssm_t *p = findSister(pSSM->udpPort, *pRoot);
     if (p) { // there are one or more sisters
@@ -307,7 +307,7 @@ static u32 getExpiredTime(int retryCount, int maxWait)
 {
     u32 curTime = getCurrentTime();
     u32 max=(retryCount< 1)?1:1<<retryCount;
-    u32 waitGap = 1000 + rand()%(1000*max);
+    int waitGap = 1000 + rand()%(1000*max);
     waitGap = ((waitGap>maxWait)?maxWait:waitGap)&0x0ffffff00;// to 256 ms 
     return ((curTime + waitGap));  
 }
@@ -411,10 +411,14 @@ static int relay_leaveSSM(amt_ssm_t *pSSM)
     u32 now = getCurrentTime();
     int res;
     amt_relay_t *pRelay = pSSM->relay;
-    amt_membership_update_t req = {
-	AMT_MEMBERSHIPP_UPDATE_TYPEID, 0,pRelay->mac_h, pRelay->mac_l, pRelay->nonce};
+    amt_membership_update_t req ;
     amt_igmpv3_membership_report_t *mr = &req.mr;
 
+    memset(&req, 0, sizeof(amt_membership_update_t));
+    req.type = AMT_MEMBERSHIPP_UPDATE_TYPEID;
+    req.mac_h = pRelay->mac_h;
+    req.mac_l = pRelay->mac_l;
+    req.nonce = pRelay->nonce;
  
     AMT_TRACE(AMT_LEVEL_8, "pSSM=%p relayState=0x%x retryCount=%u now=%u expiredTime=%u\n", 
 	      pSSM, pSSM->relayState, pSSM->retryCount, now,  pSSM->expiredTime);
@@ -483,11 +487,15 @@ static int relay_joinSSM(amt_ssm_t *pSSM)
     u32 now = getCurrentTime();
     int res;
     amt_relay_t *pRelay = pSSM->relay;
-    amt_membership_update_t req = {
-	AMT_MEMBERSHIPP_UPDATE_TYPEID, 0,pRelay->mac_h, pRelay->mac_l, pRelay->nonce};
+    amt_membership_update_t req ;
     amt_igmpv3_membership_report_t *mr = &req.mr;
     
-    if (pSSM->reflush) {
+    memset(&req, 0, sizeof(amt_membership_update_t));
+    req.type = AMT_MEMBERSHIPP_UPDATE_TYPEID;
+    req.mac_h = pRelay->mac_h;
+    req.mac_l = pRelay->mac_l;
+    req.nonce = pRelay->nonce;
+     if (pSSM->reflush) {
 	pSSM->expiredTime = 0;
 	pSSM->retryCount = 0;
     }

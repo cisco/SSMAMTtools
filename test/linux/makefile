@@ -24,7 +24,7 @@ ADD_INCLUDE_DIR=-I$(LIBAPI_DIR) -I$(EX_CODE)
 
 # standard options
 CC=gcc
-WFLAGS=-Wall -Wstrict-prototypes -Wpointer-arith -Werror
+WFLAGS=-Wall -Wstrict-prototypes -Wpointer-arith  
 
 ifdef PLATFORM32
 AMTLIB=amt
