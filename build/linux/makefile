@@ -1,4 +1,3 @@
-#
 #PLATFORM32=1
 
 TARGET_DIR=obj

@@ -102,11 +102,13 @@ static u16 checksum(u16 *buf, int size)
 static void dump_msg(u8 *buf, int size)
 {
     char msg[2048];
-    int i, ndx=0, max_l=2048;
+    int i, ndx=0, max_l=2000;
     AMT_TRACE(AMT_LEVEL_9, "message dump with size=%u -- \n", size);
-    for (i=0;i< size; i++) {
-	snprintf(&msg[ndx], max_l,"0x%02x ", buf[i]);
-	ndx+=5;max_l -= 5;
+    if (amt_isTraced(AMT_LEVEL_9)) { // print all buf
+	for (i=0;i< size && ndx<max_l; i++) {
+	    snprintf(&msg[ndx], "0x%02x ", buf[i]);
+	    ndx+=5;
+	}
     }
     AMT_TRACE(AMT_LEVEL_9,"%s\n", msg);  
 }
